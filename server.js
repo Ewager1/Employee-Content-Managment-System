@@ -1,7 +1,9 @@
+const { create } = require("domain");
 const inquirer = require("inquirer"); //allows use of inquirer npm adding question functionality
 const mysql = require("mysql"); //connects to database
 const nodemon = require("nodemon"); //keeps server refreshing
-const cTable = require("console.table"); //allows easier reading of table data
+const { createBrotliDecompress } = require("zlib");
+const questions = require("./Develop/questions");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -17,7 +19,7 @@ connection.connect(function (err) {
   start();
 });
 
-//move everything below this to seperate files later
+// start program
 
 function start() {
   inquirer.prompt(questions).then(function (answer) {
@@ -26,33 +28,25 @@ function start() {
       readDepartments();
     } else if (answer.userAction === "View a role") {
       readRoles();
-    } else {
+    } else if (answer.userAction === "View an Employee") {
       readEmployees();
+    } else if (answer.userAction === "Create New Department") {
+      createDepartment(answer.departmentName);
+    } else if (answer.userAction === "Create New Role") {
+      createRoll();
+    } else if (answer.userAction === "Create New Employee") {
+      createEmployee();
     }
   });
 }
 
-const questions = [
-  {
-    type: "list",
-    name: "userAction",
-    message: "What would you like to do?",
-    choices: ["View a department", "View a role", "View an Employee"],
-  },
-  {
-    type: "input",
-    name: "item",
-    message: "What is the name of the item you are listing?",
-    when: (answers) =>
-      answers.userAction === "Which Department would you like to view?",
-  },
-];
+//**Reading data from database**
 
 //Returns all Departments
 function readDepartments() {
   connection.query("SELECT * FROM department", function (err, result) {
     if (err) throw err;
-    console.log(result);
+    console.table(result);
     connection.end();
   });
 }
@@ -61,7 +55,7 @@ function readDepartments() {
 function readEmployees() {
   connection.query("SELECT * FROM employee", function (err, result) {
     if (err) throw err;
-    console.log(result);
+    console.table(result);
     connection.end();
   });
 }
@@ -70,7 +64,19 @@ function readEmployees() {
 function readRoles() {
   connection.query("SELECT * FROM employee_role", function (err, result) {
     if (err) throw err;
-    console.log(result);
+    console.table(result);
     connection.end();
   });
+}
+
+//**CREATE NEW IN DATABASE  */
+function createDepartment(departmentName) {
+  console.log(departmentName);
+  connection.query(
+    `INSERT INTO department (dep_name) VALUES ('${departmentName}')`,
+    function (err, result) {
+      if (err) throw err;
+      readDepartments();
+    }
+  );
 }
