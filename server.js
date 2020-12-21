@@ -1,8 +1,6 @@
-const { create } = require("domain");
 const inquirer = require("inquirer"); //allows use of inquirer npm adding question functionality
 const mysql = require("mysql"); //connects to database
 const nodemon = require("nodemon"); //keeps server refreshing
-const { createBrotliDecompress } = require("zlib");
 const questions = require("./Develop/questions");
 
 var connection = mysql.createConnection({
@@ -23,19 +21,30 @@ connection.connect(function (err) {
 
 function start() {
   inquirer.prompt(questions).then(function (answer) {
-    if (answer.userAction === "View a department") {
-      //query department data
-      readDepartments();
-    } else if (answer.userAction === "View a role") {
-      readRoles();
-    } else if (answer.userAction === "View an Employee") {
-      readEmployees();
-    } else if (answer.userAction === "Create New Department") {
-      createDepartment(answer.departmentName);
-    } else if (answer.userAction === "Create New Role") {
-      createRole(answer.roleName, answer.roleSalary, answer.departmentNumber);
-    } else if (answer.userAction === "Create New Employee") {
-      createEmployee();
+    switch (answer.userAction) {
+      case "View a department":
+        readDepartments();
+        break;
+      case "View a role":
+        readRoles();
+        break;
+      case "View an Employee":
+        readEmployees();
+        break;
+      case "Create New Department":
+        createDepartment(answer.departmentName);
+        break;
+      case "Create New Role":
+        createRole(answer.roleName, answer.roleSalary, answer.departmentNumber);
+        break;
+      case "Create New Employee":
+        createEmployee(
+          answer.employeeFirstName,
+          answer.employeeLastName,
+          answer.employeeRoleId,
+          answer.employeeManagerId
+        );
+        break;
     }
   });
 }
@@ -86,6 +95,22 @@ function createRole(roleName, roleSalary, departmentId) {
     function (err, result) {
       if (err) throw err;
       readRoles();
+    }
+  );
+}
+
+//creates new Employee, then lets user see employeese
+function createEmployee(
+  firstName,
+  lastName,
+  employeeRoleId,
+  employeeManagerId
+) {
+  connection.query(
+    `INSERT INTO employee ( empl_first_name, empl_last_name, role_id, manager_id) VALUES ('${firstName}', '${lastName}', '${employeeRoleId}', '${employeeManagerId}')`,
+    function (err, result) {
+      if (err) throw err;
+      readEmployees();
     }
   );
 }

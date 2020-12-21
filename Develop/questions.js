@@ -35,6 +35,40 @@ const questions = [
         when: (answer) =>
           answer.userAction === "Create New Role",
       },
+      {
+        type: "input",
+        name: "employeeFirstName",
+        message: "What is the new employee's first name?",
+        when: (answer) =>
+          answer.userAction === "Create New Employee",
+      },
+      {
+        type: "input",
+        name: "employeeLastName",
+        message: "What is the new employee's last name?",
+        when: (answer) =>
+          answer.userAction === "Create New Employee",
+      },
+      {
+        type: "input",
+        name: "employeeRoleId",
+        message: "What is the new employee's role ID?",
+        when: (answer) =>
+          answer.userAction === "Create New Employee",
+      },
+      {
+        type: "list",
+        name: "hasManager",
+        message: "Does this Employee have a manager?",
+        choices: ["Yes", "No"],
+      },
+      {
+        type: "input",
+        name: "employeeManagerId",
+        message: "Enter Employee's Manager ID or leave blank",
+        when: (answer) =>
+          answer.hasManager === "Yes",
+      },
   ];
 
   //export used in app.js
