@@ -14,6 +14,27 @@ const questions = [
       when: (answer) =>
         answer.userAction === "Create New Department",
     },
+    {
+        type: "input",
+        name: "roleName",
+        message: "What is the name of the new Role?",
+        when: (answer) =>
+          answer.userAction === "Create New Role",
+      },
+    {
+        type: "input",
+        name: "departmentNumber",
+        message: "What Department Number is the new Role?",
+        when: (answer) =>
+          answer.userAction === "Create New Role",
+      },
+      {
+        type: "input",
+        name: "roleSalary",
+        message: `What is the salary of the new Role?`,
+        when: (answer) =>
+          answer.userAction === "Create New Role",
+      },
   ];
 
   //export used in app.js

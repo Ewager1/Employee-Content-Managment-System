@@ -33,7 +33,7 @@ function start() {
     } else if (answer.userAction === "Create New Department") {
       createDepartment(answer.departmentName);
     } else if (answer.userAction === "Create New Role") {
-      createRoll();
+      createRole(answer.roleName, answer.roleSalary, answer.departmentNumber);
     } else if (answer.userAction === "Create New Employee") {
       createEmployee();
     }
@@ -47,7 +47,6 @@ function readDepartments() {
   connection.query("SELECT * FROM department", function (err, result) {
     if (err) throw err;
     console.table(result);
-    connection.end();
   });
 }
 
@@ -56,7 +55,6 @@ function readEmployees() {
   connection.query("SELECT * FROM employee", function (err, result) {
     if (err) throw err;
     console.table(result);
-    connection.end();
   });
 }
 
@@ -65,18 +63,29 @@ function readRoles() {
   connection.query("SELECT * FROM employee_role", function (err, result) {
     if (err) throw err;
     console.table(result);
-    connection.end();
   });
 }
 
-//**CREATE NEW IN DATABASE  */
+//**CREATE NEW IN DATABASE  **/
+
+//Creates new Departments, then lets user see departments
 function createDepartment(departmentName) {
-  console.log(departmentName);
   connection.query(
     `INSERT INTO department (dep_name) VALUES ('${departmentName}')`,
     function (err, result) {
       if (err) throw err;
       readDepartments();
+    }
+  );
+}
+
+//creates new Role, then lets user see roles
+function createRole(roleName, roleSalary, departmentId) {
+  connection.query(
+    `INSERT INTO employee_role (role_title, role_salary, department_id) VALUES ('${roleName}', '${roleSalary}', '${departmentId}')`,
+    function (err, result) {
+      if (err) throw err;
+      readRoles();
     }
   );
 }
