@@ -14,8 +14,36 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
+  depData = grabDep()
+
+
+  
+
   start();
 });
+
+// //test grab data
+// function grabData() {
+//   allTableData = [];
+//   connection.query("SELECT * FROM department", function (err, result) {
+//     allTableData.push(result);
+
+//     connection.query("SELECT * FROM employee", function (err, result) {
+//       allTableData.push(result);
+//       connection.query("SELECT * FROM employee_role", function (err, result) {
+//         allTableData.push(result);
+
+//         console.log(allTableData);
+//         return allTableData;
+//       });
+//     });
+//   });
+// }
+
+
+
+//test grab data
+
 
 // start program
 
