@@ -2,6 +2,7 @@ const inquirer = require("inquirer"); //allows use of inquirer npm adding questi
 const mysql = require("mysql"); //connects to database
 const nodemon = require("nodemon"); //keeps server refreshing
 const questions = require("./Develop/questions");
+// console.log(questions.options)
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -14,131 +15,98 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-  depData = grabDep()
-
-
-  
-
-  start();
+  readAllData();
+  startPrompt();
 });
-
-// //test grab data
-// function grabData() {
-//   allTableData = [];
-//   connection.query("SELECT * FROM department", function (err, result) {
-//     allTableData.push(result);
-
-//     connection.query("SELECT * FROM employee", function (err, result) {
-//       allTableData.push(result);
-//       connection.query("SELECT * FROM employee_role", function (err, result) {
-//         allTableData.push(result);
-
-//         console.log(allTableData);
-//         return allTableData;
-//       });
-//     });
-//   });
-// }
-
-
-
-//test grab data
-
 
 // start program
 
-function start() {
-  inquirer.prompt(questions).then(function (answer) {
-    switch (answer.userAction) {
-      case "View a department":
-        readDepartments();
-        break;
-      case "View a role":
-        readRoles();
-        break;
-      case "View an Employee":
-        readEmployees();
-        break;
-      case "Create New Department":
-        createDepartment(answer.departmentName);
-        break;
-      case "Create New Role":
-        createRole(answer.roleName, answer.roleSalary, answer.departmentNumber);
-        break;
-      case "Create New Employee":
-        createEmployee(
-          answer.employeeFirstName,
-          answer.employeeLastName,
-          answer.employeeRoleId,
-          answer.employeeManagerId
-        );
-        break;
-    }
-  });
+function startPrompt() {
+  setTimeout(function () {
+    inquirer.prompt(questions.options).then(function (answer) {
+      switch (answer.userAction) {
+        case "View employees by department":
+          viewByDepartment();
+          break;
+        case "View employees by role":
+          viewByRole();
+          break;
+        case "Create New Department":
+          createDepartment(answer.departmentName);
+          break;
+        case "Create New Role":
+          createRole(
+            answer.roleName,
+            answer.roleSalary,
+            answer.departmentNumber
+          );
+          break;
+        // case "Create New Employee":
+        //   createEmployee(
+        //     answer.employeeFirstName,
+        //     answer.employeeLastName,
+        //     answer.employeeRoleId,
+        //     answer.employeeManagerId
+        //   );
+        //   break;
+      }
+    });
+  }, 500);
 }
 
 //**Reading data from database**
 
-//Returns all Departments
-function readDepartments() {
-  connection.query("SELECT * FROM department", function (err, result) {
-    if (err) throw err;
-    console.table(result);
-  });
-}
-
-//Returns all Employees
-function readEmployees() {
-  connection.query("SELECT * FROM employee", function (err, result) {
-    if (err) throw err;
-    console.table(result);
-  });
-}
-
-//Returns all Roles
-function readRoles() {
-  connection.query("SELECT * FROM employee_role", function (err, result) {
-    if (err) throw err;
-    console.table(result);
-  });
-}
-
-//**CREATE NEW IN DATABASE  **/
-
-//Creates new Departments, then lets user see departments
-function createDepartment(departmentName) {
+//displays all employee data on screen at start of application
+function readAllData() {
   connection.query(
-    `INSERT INTO department (dep_name) VALUES ('${departmentName}')`,
+    `
+  SELECT empl_id as id, empl_first_name as first_name, empl_last_name as last_name, 
+  role_title as title, dep_name as department, role_salary as salary, manager_id as manager FROM cms.employee_role 
+  LEFT JOIN cms.employee ON employee_role.id=employee.role_id 
+  LEFT JOIN cms.department ON department.id=employee_role.department_id 
+  WHERE empl_first_name IS NOT NULL;
+  `,
     function (err, result) {
       if (err) throw err;
-      readDepartments();
+      console.table(result);
+      let test = result;
+      return test;
     }
   );
 }
 
-//creates new Role, then lets user see roles
-function createRole(roleName, roleSalary, departmentId) {
+//Returns employee view by Department
+function viewByDepartment() {
   connection.query(
-    `INSERT INTO employee_role (role_title, role_salary, department_id) VALUES ('${roleName}', '${roleSalary}', '${departmentId}')`,
+    `SELECT empl_id as id, empl_first_name as first_name, empl_last_name as last_name, 
+  role_title as title, dep_name as department, role_salary as salary, manager_id as manager FROM cms.employee_role 
+  LEFT JOIN cms.employee ON employee_role.id=employee.role_id 
+  LEFT JOIN cms.department ON department.id=employee_role.department_id 
+  WHERE empl_first_name IS NOT NULL ORDER BY department ;`,
     function (err, result) {
       if (err) throw err;
-      readRoles();
+      console.table(result);
+      startPrompt();
     }
   );
 }
 
-//creates new Employee, then lets user see employeese
-function createEmployee(
-  firstName,
-  lastName,
-  employeeRoleId,
-  employeeManagerId
-) {
+//Returns employee data by Role
+function viewByRole() {
   connection.query(
-    `INSERT INTO employee ( empl_first_name, empl_last_name, role_id, manager_id) VALUES ('${firstName}', '${lastName}', '${employeeRoleId}', '${employeeManagerId}')`,
+    `SELECT empl_id as id, empl_first_name as first_name, empl_last_name as last_name, 
+  role_title as title, dep_name as department, role_salary as salary, manager_id as manager FROM cms.employee_role 
+  LEFT JOIN cms.employee ON employee_role.id=employee.role_id 
+  LEFT JOIN cms.department ON department.id=employee_role.department_id 
+  WHERE empl_first_name IS NOT NULL ORDER BY title ;`,
     function (err, result) {
       if (err) throw err;
-      readEmployees();
+      console.table(result);
+      startPrompt();
     }
   );
+}
+
+function createDepartment(firstName, lastName, roleID, manager) {
+  console.log(firstName, lastName, roleID, manager);
 }
