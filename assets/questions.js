@@ -25,17 +25,9 @@ const createEmployeeQuestions = [
       message: "What is the new employee's role ID?",
     },
     {
-      type: "list",
-      name: "hasManager",
-      message: "Does this Employee have a manager?",
-      choices: ["Yes", "No"],
-    },
-    {
       type: "input",
       name: "employeeManagerId",
       message: "Enter Employee's Manager ID or leave blank",
-      when: (answer) =>
-        answer.hasManager === "Yes",
     },
 ];
 

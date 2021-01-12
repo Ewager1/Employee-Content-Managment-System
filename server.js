@@ -1,8 +1,7 @@
 const inquirer = require("inquirer"); //allows use of inquirer npm adding question functionality
 const mysql = require("mysql"); //connects to database
 const nodemon = require("nodemon"); //keeps server refreshing
-const questions = require("./Develop/questions");
-// console.log(questions.options)
+const questions = require("./assets/questions");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -15,43 +14,32 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
+
   readAllData();
-  startPrompt();
 });
 
 // start program
 
-function startPrompt() {
-  setTimeout(function () {
-    inquirer.prompt(questions.options).then(function (answer) {
-      switch (answer.userAction) {
-        case "View employees by department":
-          viewByDepartment();
-          break;
-        case "View employees by role":
-          viewByRole();
-          break;
-        case "Create New Department":
-          createDepartment(answer.departmentName);
-          break;
-        case "Create New Role":
-          createRole(
-            answer.roleName,
-            answer.roleSalary,
-            answer.departmentNumber
-          );
-          break;
-        // case "Create New Employee":
-        //   createEmployee(
-        //     answer.employeeFirstName,
-        //     answer.employeeLastName,
-        //     answer.employeeRoleId,
-        //     answer.employeeManagerId
-        //   );
-        //   break;
-      }
-    });
-  }, 500);
+function optionsPrompt() {
+  inquirer.prompt(questions.options).then(function (answer) {
+    switch (answer.userAction) {
+      case "View employees by department":
+        viewByDepartment();
+        break;
+      case "View employees by role":
+        viewByRole();
+        break;
+      case "Create New Department":
+        createDepartment(answer.departmentName);
+        break;
+      case "Create New Role":
+        createRole(answer.roleName, answer.roleSalary, answer.departmentNumber);
+        break;
+      case "Create New Employee":
+        createEmployee();
+        break;
+    }
+  });
 }
 
 //**Reading data from database**
@@ -66,11 +54,8 @@ function readAllData() {
   LEFT JOIN cms.department ON department.id=employee_role.department_id 
   WHERE empl_first_name IS NOT NULL;
   `,
-    function (err, result) {
-      if (err) throw err;
-      console.table(result);
-      let test = result;
-      return test;
+    function () {
+      optionsPrompt();
     }
   );
 }
@@ -86,7 +71,7 @@ function viewByDepartment() {
     function (err, result) {
       if (err) throw err;
       console.table(result);
-      startPrompt();
+      optionsPrompt();
     }
   );
 }
@@ -102,11 +87,27 @@ function viewByRole() {
     function (err, result) {
       if (err) throw err;
       console.table(result);
-      startPrompt();
+      optionsPrompt();
     }
   );
 }
 
-function createDepartment(firstName, lastName, roleID, manager) {
-  console.log(firstName, lastName, roleID, manager);
+//Create New Section
+function createEmployee() {
+  inquirer.prompt(questions.createEmployeeQuestions).then(function (answer) {
+    if ((answer.employeeManagerId = "undefined")) {
+      answer.employeeManagerId = 0;
+    }
+    connection.query(
+      `INSERT INTO cms.employee (empl_first_name, empl_last_name, role_id, manager_id) VALUES
+       ('${answer.employeeFirstName}',
+       '${answer.employeeLastName}',
+        '${answer.employeeRoleId}',
+        '${answer.employeeManagerId}'
+        );`,
+      function (error, results, fields) {
+        viewByDepartment();
+      }
+    );
+  });
 }
