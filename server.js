@@ -14,7 +14,6 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-
   readAllData();
 });
 
@@ -37,6 +36,9 @@ function optionsPrompt() {
         break;
       case "Create New Employee":
         createEmployee();
+        break;
+      case "Delete Employee":
+        deleteEmployee();
         break;
     }
   });
@@ -110,4 +112,29 @@ function createEmployee() {
       }
     );
   });
+}
+
+//Delete Employee
+function deleteEmployee() {
+  connection.query(
+    //pull a list of employees and their id's for user reference
+    `SELECT empl_id AS id, empl_first_name, empl_last_name FROM cms.employee;`,
+    function (error, results, feilds) {
+      console.table(results)
+      //then call  inquirer to ask user to choose which id to terminate an employee
+      inquirer.prompt(questions.terminateEmployee).then(function (answer) {
+        results.forEach((element) => {
+          employeeId = parseInt(answer.employeeNames);
+      //matches the answer to the correct employee to delete
+          if (element.id === employeeId) {
+            connection.query(
+              `DELETE from cms.employee where empl_id = ${employeeId}`
+            );
+          }
+        });
+        //resets program
+        viewByDepartment();
+      });
+    }
+  );
 }

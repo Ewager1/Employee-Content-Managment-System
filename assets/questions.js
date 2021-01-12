@@ -3,7 +3,7 @@ const options = [
     type: "list",
     name: "userAction",
     message: "What would you like to do?",
-    choices: ["View employees by department", "View employees by role",  "Create New Department", "Create New Role", "Create New Employee"],
+    choices: ["View employees by department", "View employees by role",  "Create New Department", "Create New Role", "Create New Employee", "Delete Employee"],
   }
 ] 
 
@@ -31,6 +31,15 @@ const createEmployeeQuestions = [
     },
 ];
 
+const terminateEmployee = {
+  type: "input",
+  name: "employeeNames",
+  message: "Enter the Id of the employee you would like to terminate", 
+}
+
 //export used in app.js
 module.exports.options = options
 module.exports.createEmployeeQuestions = createEmployeeQuestions
+module.exports.terminateEmployee = terminateEmployee
+
+
