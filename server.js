@@ -4,6 +4,7 @@ const nodemon = require("nodemon"); //keeps server refreshing
 const { throwError } = require("rxjs");
 const questions = require("./assets/questions");
 
+./assets/images/demoPic.png
 
 const connection = mysql.createConnection({
   host: "localhost",
